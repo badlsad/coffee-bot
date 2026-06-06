@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id     Int     @id @default(autoincrement())
+  name   String
+  emoji  String  @default("☕")
+  order  Int     @default(0)
+  drinks Drink[]
+}
+
+model Drink {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String?
+  photoFileId String?
+  isActive    Boolean     @default(true)
+  categoryId  Int
+  category    Category    @relation(fields: [categoryId], references: [id])
+  sizes       DrinkSize[]
+  steps       Step[]
+  techParams  TechParam[]
+  createdAt   DateTime    @default(now())
+}
+
+model DrinkSize {
+  id          Int          @id @default(autoincrement())
+  drinkId     Int
+  drink       Drink        @relation(fields: [drinkId], references: [id], onDelete: Cascade)
+  label       String
+  volumeMl    Int?
+  ingredients Ingredient[]
+}
+
+model Ingredient {
+  id          Int       @id @default(autoincrement())
+  drinkSizeId Int
+  drinkSize   DrinkSize @relation(fields: [drinkSizeId], references: [id], onDelete: Cascade)
+  name        String
+  amount      String
+  unit        String
+  order       Int       @default(0)
+}
+
+model Step {
+  id          Int    @id @default(autoincrement())
+  drinkId     Int
+  drink       Drink  @relation(fields: [drinkId], references: [id], onDelete: Cascade)
+  order       Int
+  description String
+}
+
+model TechParam {
+  id      Int    @id @default(autoincrement())
+  drinkId Int
+  drink   Drink  @relation(fields: [drinkId], references: [id], onDelete: Cascade)
+  name    String
+  value   String
+  unit    String @default("")
+}
