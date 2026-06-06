@@ -22,19 +22,12 @@ export function createBot() {
 
   // ─── Пользовательские команды ────────────────────────────────────────────────
 
-  const isHttps = WEBAPP_URL?.startsWith('https://');
-
   bot.command('start', async ctx => {
     if (!WEBAPP_URL) return ctx.reply('Бот настраивается, попробуйте позже.');
-    if (isHttps) {
-      const kb = new InlineKeyboard().webApp('☕ Открыть тех. карту', WEBAPP_URL);
-      return ctx.reply(
-        '👋 Привет! Я помогу найти рецепт любого напитка.\n\nНажми кнопку ниже, чтобы открыть тех. карту:',
-        { reply_markup: kb }
-      );
-    }
+    const kb = new InlineKeyboard().webApp('☕ Открыть тех. карту', WEBAPP_URL);
     await ctx.reply(
-      `👋 Привет! Я помогу найти рецепт любого напитка.\n\nОткрой тех. карту: ${WEBAPP_URL}`
+      '👋 Привет! Я помогу найти рецепт любого напитка.\n\nНажми кнопку ниже, чтобы открыть тех. карту:',
+      { reply_markup: kb }
     );
   });
 
@@ -50,15 +43,11 @@ export function createBot() {
 
     if (!drinks.length) return ctx.reply(`По запросу "${q}" ничего не найдено.`);
 
-    if (isHttps) {
-      const kb = new InlineKeyboard();
-      drinks.forEach(d => {
-        kb.webApp(`${d.category.emoji} ${d.name}`, `${WEBAPP_URL}#drink_${d.id}`).row();
-      });
-      return ctx.reply(`🔍 Найдено: ${drinks.length}`, { reply_markup: kb });
-    }
-    const list = drinks.map(d => `${d.category.emoji} ${d.name}: ${WEBAPP_URL}#drink_${d.id}`).join('\n');
-    await ctx.reply(`🔍 Найдено: ${drinks.length}\n\n${list}`);
+    const kb = new InlineKeyboard();
+    drinks.forEach(d => {
+      kb.webApp(`${d.category.emoji} ${d.name}`, `${WEBAPP_URL}#drink_${d.id}`).row();
+    });
+    await ctx.reply(`🔍 Найдено: ${drinks.length}`, { reply_markup: kb });
   });
 
   // ─── Админ-команды ───────────────────────────────────────────────────────────
