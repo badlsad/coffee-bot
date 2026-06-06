@@ -4,6 +4,7 @@ import cors from 'cors';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import apiRouter from './api.js';
+import adminRouter from './admin-api.js';
 import { createBot } from './bot.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -13,7 +14,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use('/api', apiRouter);
+app.use('/api/admin', adminRouter);
 app.use(express.static(path.join(__dirname, '../webapp')));
+app.get('/admin', (_, res) => res.sendFile(path.join(__dirname, '../webapp/admin.html')));
 app.get('*', (_, res) => res.sendFile(path.join(__dirname, '../webapp/index.html')));
 
 app.listen(PORT, () => console.log(`🚀 Server: http://localhost:${PORT}`));

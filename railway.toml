@@ -2,5 +2,5 @@
 builder = "NIXPACKS"
 
 [deploy]
-startCommand = "npx prisma db push && node prisma/setup.js && node src/index.js"
+startCommand = "npx prisma migrate deploy && node prisma/setup.js && node src/index.js"
 restartPolicyType = "ON_FAILURE"

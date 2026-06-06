@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Админ-панель — Тех. карта</title>
+  <link rel="stylesheet" href="/admin.css">
+</head>
+<body>
+  <!-- Login screen -->
+  <div id="loginScreen">
+    <div class="login-box">
+      <div class="login-logo">☕</div>
+      <h1>Тех. карта</h1>
+      <p>Введите секретный ключ для входа</p>
+      <form id="loginForm">
+        <input type="password" id="secretInput" placeholder="Секретный ключ" autocomplete="current-password">
+        <button type="submit">Войти</button>
+      </form>
+      <div id="loginError" class="error hidden">Неверный ключ</div>
+    </div>
+  </div>
+
+  <!-- Admin panel -->
+  <div id="adminPanel" class="hidden">
+    <aside class="sidebar">
+      <div class="sidebar-logo">☕ Админ</div>
+      <nav>
+        <button class="nav-btn active" data-view="dashboard">📊 Дашборд</button>
+        <button class="nav-btn" data-view="categories">📂 Категории</button>
+        <button class="nav-btn" data-view="drinks">🥤 Напитки</button>
+      </nav>
+      <button id="logoutBtn" class="logout-btn">Выйти</button>
+    </aside>
+
+    <main class="main">
+      <!-- Dashboard -->
+      <section id="view-dashboard" class="view active">
+        <h2>Дашборд</h2>
+        <div class="stats-grid">
+          <div class="stat-card"><span id="stat-cats">—</span><label>Категорий</label></div>
+          <div class="stat-card"><span id="stat-drinks">—</span><label>Напитков</label></div>
+          <div class="stat-card"><span id="stat-active">—</span><label>Активных</label></div>
+          <div class="stat-card"><span id="stat-sizes">—</span><label>Размеров</label></div>
+        </div>
+        <div class="quick-links">
+          <button class="btn-primary" data-view="categories">+ Добавить категорию</button>
+          <button class="btn-primary" data-view="drinks">+ Добавить напиток</button>
+        </div>
+      </section>
+
+      <!-- Categories -->
+      <section id="view-categories" class="view hidden">
+        <div class="view-header">
+          <h2>Категории</h2>
+          <button class="btn-primary" id="addCatBtn">+ Добавить</button>
+        </div>
+        <div id="catsList" class="list"></div>
+      </section>
+
+      <!-- Drinks list -->
+      <section id="view-drinks" class="view hidden">
+        <div class="view-header">
+          <h2>Напитки</h2>
+          <button class="btn-primary" id="addDrinkBtn">+ Добавить</button>
+        </div>
+        <div class="filter-row">
+          <select id="drinkCatFilter"><option value="">Все категории</option></select>
+          <input type="search" id="drinkSearch" placeholder="Поиск...">
+        </div>
+        <div id="drinksList" class="list"></div>
+      </section>
+
+      <!-- Drink editor -->
+      <section id="view-drink-editor" class="view hidden">
+        <div class="view-header">
+          <button class="btn-back" id="backToDrinks">← Назад</button>
+          <h2 id="editorDrinkName">Напиток</h2>
+          <div class="editor-actions">
+            <button class="btn-toggle" id="toggleActiveBtn"></button>
+            <button class="btn-danger" id="deleteDrinkBtn">Удалить</button>
+          </div>
+        </div>
+
+        <div class="editor-grid">
+          <!-- Info -->
+          <div class="editor-card">
+            <h3>Основное</h3>
+            <form id="drinkInfoForm">
+              <label>Название<input type="text" name="name"></label>
+              <label>Описание<textarea name="description" rows="2"></textarea></label>
+              <label>Категория
+                <select name="categoryId"></select>
+              </label>
+              <button type="submit" class="btn-primary">Сохранить</button>
+            </form>
+          </div>
+
+          <!-- Sizes & Ingredients -->
+          <div class="editor-card">
+            <div class="card-header">
+              <h3>Размеры и ингредиенты</h3>
+              <button class="btn-sm" id="addSizeBtn">+ Размер</button>
+            </div>
+            <div id="sizesList"></div>
+          </div>
+
+          <!-- Steps -->
+          <div class="editor-card">
+            <div class="card-header">
+              <h3>Приготовление</h3>
+              <button class="btn-sm" id="addStepBtn">+ Шаг</button>
+            </div>
+            <div id="stepsList"></div>
+          </div>
+
+          <!-- Tech Params -->
+          <div class="editor-card">
+            <div class="card-header">
+              <h3>Тех. параметры</h3>
+              <button class="btn-sm" id="addParamBtn">+ Параметр</button>
+            </div>
+            <div id="paramsList"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">Форма</h3>
+        <button class="modal-close" id="modalClose">✕</button>
+      </div>
+      <form id="modalForm"></form>
+    </div>
+  </div>
+
+  <script src="/admin.js"></script>
+</body>
+</html>
