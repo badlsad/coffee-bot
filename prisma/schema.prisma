@@ -20,6 +20,7 @@ model Drink {
   name        String
   description String?
   photoFileId String?
+  photoUrl    String?
   isActive    Boolean     @default(true)
   categoryId  Int
   category    Category    @relation(fields: [categoryId], references: [id])

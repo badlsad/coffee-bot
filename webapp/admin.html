@@ -96,6 +96,20 @@
             </form>
           </div>
 
+          <!-- Photo -->
+          <div class="editor-card">
+            <div class="card-header">
+              <h3>Фото</h3>
+              <button class="btn-danger" id="deletePhotoBtn" style="display:none">Удалить</button>
+            </div>
+            <div id="photoPreview" class="photo-preview"></div>
+            <div class="photo-upload-area" id="photoUploadArea">
+              <input type="file" id="photoFileInput" accept="image/*" style="display:none">
+              <button class="btn-primary" id="uploadPhotoBtn">📷 Загрузить фото</button>
+              <span class="upload-hint" id="cloudinaryHint"></span>
+            </div>
+          </div>
+
           <!-- Sizes & Ingredients -->
           <div class="editor-card">
             <div class="card-header">

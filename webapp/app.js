@@ -102,7 +102,7 @@ async function loadDrinks(category) {
 
   el.drinksList.innerHTML = drinks.map(d => `
     <div class="drink-card" data-drink-id="${d.id}">
-      ${thumb(d.photoFileId, category.emoji)}
+      ${thumb(d.photoUrl, d.photoFileId, category.emoji)}
       <div class="drink-info">
         <div class="drink-name">${esc(d.name)}</div>
         ${d.description ? `<div class="drink-desc">${esc(d.description)}</div>` : ''}
@@ -136,8 +136,8 @@ function renderDrink(drink) {
   const hasParams = drink.techParams.length > 0;
 
   el.drinkContent.innerHTML = `
-    ${drink.photoFileId
-      ? `<img class="detail-photo" src="/api/photo/${drink.photoFileId}" alt="${esc(drink.name)}">`
+    ${drink.photoUrl || drink.photoFileId
+      ? `<img class="detail-photo" src="${drink.photoUrl || `/api/photo/${drink.photoFileId}`}" alt="${esc(drink.name)}">`
       : `<div class="detail-photo-placeholder">${drink.category.emoji}</div>`}
 
     <div class="detail-header">
@@ -255,7 +255,7 @@ async function doSearch(q) {
 
   el.searchResults.innerHTML = drinks.map(d => `
     <div class="drink-card" data-drink-id="${d.id}">
-      ${thumb(d.photoFileId, d.category?.emoji || '☕')}
+      ${thumb(d.photoUrl, d.photoFileId, d.category?.emoji || '☕')}
       <div class="drink-info">
         <div class="drink-name">${esc(d.name)}</div>
         <div class="drink-desc">${d.category ? `${d.category.emoji} ${esc(d.category.name)}` : ''}</div>
@@ -273,10 +273,10 @@ async function doSearch(q) {
 }
 
 // ── Хелперы ───────────────────────────────────────────────────────────────────
-function thumb(fileId, emoji) {
-  return fileId
-    ? `<img class="drink-thumb" src="/api/photo/${fileId}" alt="" loading="lazy">`
-    : `<div class="drink-thumb-placeholder">${emoji}</div>`;
+function thumb(photoUrl, fileId, emoji) {
+  if (photoUrl) return `<img class="drink-thumb" src="${photoUrl}" alt="" loading="lazy">`;
+  if (fileId)   return `<img class="drink-thumb" src="/api/photo/${fileId}" alt="" loading="lazy">`;
+  return `<div class="drink-thumb-placeholder">${emoji}</div>`;
 }
 
 function esc(str) {

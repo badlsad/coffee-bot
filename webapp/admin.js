@@ -229,6 +229,7 @@ function renderDrinkEditor(drink) {
     `<option value="${c.id}" ${c.id === drink.categoryId ? 'selected' : ''}>${c.emoji} ${esc(c.name)}</option>`
   ).join('');
 
+  renderPhoto(drink);
   renderSizes(drink);
   renderSteps(drink);
   renderParams(drink);
@@ -458,10 +459,81 @@ window.deleteParam = async (id) => {
 async function refreshEditor() {
   const drink = await GET(`/drinks/${state.currentDrink.id}`);
   state.currentDrink = drink;
+  renderPhoto(drink);
   renderSizes(drink);
   renderSteps(drink);
   renderParams(drink);
 }
+
+// ── Photo ───────────────────────────────────────────────────────────────────
+function renderPhoto(drink) {
+  const preview   = document.getElementById('photoPreview');
+  const deleteBtn = document.getElementById('deletePhotoBtn');
+  if (drink.photoUrl) {
+    preview.innerHTML = `<img src="${drink.photoUrl}" alt="Фото напитка">`;
+    deleteBtn.style.display = '';
+  } else {
+    preview.innerHTML = '<div class="photo-placeholder">Фото не загружено</div>';
+    deleteBtn.style.display = 'none';
+  }
+}
+
+document.getElementById('uploadPhotoBtn').addEventListener('click', () => {
+  document.getElementById('photoFileInput').click();
+});
+
+document.getElementById('photoFileInput').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const uploadBtn = document.getElementById('uploadPhotoBtn');
+  const hint      = document.getElementById('cloudinaryHint');
+  uploadBtn.disabled    = true;
+  uploadBtn.textContent = '⏳ Загружаю...';
+  hint.textContent      = '';
+
+  try {
+    const fd = new FormData();
+    fd.append('photo', file);
+
+    const res = await fetch(`/api/admin/drinks/${state.currentDrink.id}/photo`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${state.token}` },
+      body: fd,
+    });
+
+    if (res.status === 503) {
+      hint.textContent = '⚠ Добавьте CLOUDINARY_URL в Railway Variables';
+      return;
+    }
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || 'Ошибка загрузки');
+    }
+
+    const { photoUrl } = await res.json();
+    state.currentDrink = { ...state.currentDrink, photoUrl };
+    renderPhoto(state.currentDrink);
+    hint.textContent = '✓ Загружено';
+    setTimeout(() => { hint.textContent = ''; }, 3000);
+  } catch (err) {
+    hint.textContent = `Ошибка: ${err.message}`;
+  } finally {
+    uploadBtn.disabled    = false;
+    uploadBtn.textContent = '📷 Загрузить фото';
+    e.target.value        = '';
+  }
+});
+
+document.getElementById('deletePhotoBtn').addEventListener('click', async () => {
+  if (!confirm('Удалить фото напитка?')) return;
+  await DELETE(`/drinks/${state.currentDrink.id}/photo`);
+  state.currentDrink = { ...state.currentDrink, photoUrl: null, photoFileId: null };
+  renderPhoto(state.currentDrink);
+  const hint = document.getElementById('cloudinaryHint');
+  hint.textContent = '✓ Фото удалено';
+  setTimeout(() => { hint.textContent = ''; }, 2000);
+});
 
 // Modal
 let modalCallback = null;

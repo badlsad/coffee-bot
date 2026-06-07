@@ -1,5 +1,9 @@
 import { Router } from 'express';
+import multer from 'multer';
+import { v2 as cloudinary } from 'cloudinary';
 import db from './db.js';
+
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
 const router = Router();
 
@@ -192,6 +196,33 @@ router.put('/params/:id', async (req, res) => {
 
 router.delete('/params/:id', async (req, res) => {
   await db.techParam.delete({ where: { id: +req.params.id } });
+  res.json({ ok: true });
+});
+
+// ─── Photo upload ─────────────────────────────────────────────────────────────
+
+router.post('/drinks/:id/photo', upload.single('photo'), async (req, res) => {
+  const cloudinaryUrl = process.env.CLOUDINARY_URL;
+  if (!cloudinaryUrl) return res.status(503).json({ error: 'CLOUDINARY_URL not configured' });
+
+  if (!req.file) return res.status(400).json({ error: 'No file' });
+
+  const result = await new Promise((resolve, reject) => {
+    cloudinary.uploader.upload_stream(
+      { folder: 'coffee-bot', resource_type: 'image' },
+      (err, r) => err ? reject(err) : resolve(r)
+    ).end(req.file.buffer);
+  });
+
+  const drink = await db.drink.update({
+    where: { id: +req.params.id },
+    data: { photoUrl: result.secure_url },
+  });
+  res.json({ photoUrl: drink.photoUrl });
+});
+
+router.delete('/drinks/:id/photo', async (req, res) => {
+  await db.drink.update({ where: { id: +req.params.id }, data: { photoUrl: null, photoFileId: null } });
   res.json({ ok: true });
 });
 
